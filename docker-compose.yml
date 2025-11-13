@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fx-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=fxdeals
+    volumes:
+      - fx-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d fxdeals"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    container_name: fx-app
+    # Builds the image from the local Dockerfile
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Configure app to connect to the 'db' service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/fxdeals
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  fx-db-data:
