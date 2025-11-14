@@ -45,7 +45,7 @@ The entire application stack (app + database) can be run using Docker Compose.
 
     ```sh
     # 1. Build the app and run tests 
-    mvn clean install
+    .\mvnw clean install
     
     # 2. Start the application and database
     docker-compose up --build -d
